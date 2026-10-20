@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Portal da Chuva</title>
+
+    <!-- Leaflet -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    />
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <header>
+      <h1>
+        <i class="fa-solid fa-cloud-rain"></i>
+        Portal da Chuva
+      </h1>
+    </header>
+
+    <!-- FILTROS -->
+    <div class="filtros">
+      <select id="filtroRegional">
+        <option value="">Todas as Regionais</option>
+      </select>
+
+      <select id="filtroCluster" disabled>
+        <option value="">Todos os Clusters</option>
+      </select>
+
+      <select id="filtroCidade" disabled>
+        <option value="">Todas as Cidades</option>
+      </select>
+    </div>
+
+    <div class="container">
+      <!-- MAPA -->
+      <div id="map"></div>
+
+      <!-- SIDEBAR -->
+      <aside id="sidebar">
+        <!-- KPIs -->
+        <div class="kpis">
+          <div class="kpi">
+            <span id="totalRegionais">0</span>
+            <small>Regionais</small>
+          </div>
+
+          <div class="kpi">
+            <span id="totalClusters">0</span>
+            <small>Clusters</small>
+          </div>
+
+          <div class="kpi">
+            <span id="totalCidades">0</span>
+            <small>Cidades</small>
+          </div>
+        </div>
+
+        <!-- CONTADOR -->
+        <div class="contador" id="contador">
+          <i class="fa-solid fa-map-location-dot"></i>
+          Carregando...
+        </div>
+
+        <!-- LEGENDA -->
+        <div class="legenda">
+          <h4>
+            <i class="fa-solid fa-circle-info"></i>
+            Legenda
+          </h4>
+
+          <div>
+            <span class="verde"></span>
+            Normal
+          </div>
+
+          <div>
+            <span class="laranja"></span>
+            Atenção
+          </div>
+
+          <div>
+            <span class="vermelho"></span>
+            Crítico
+          </div>
+        </div>
+
+        <!-- RESUMO METEOROLÓGICO -->
+        <div class="previsao-container">
+          <h4>
+            <i class="fa-solid fa-cloud-sun"></i>
+            Condições Meteorológicas
+          </h4>
+
+          <div class="resumo-clima">
+            <div class="clima-item">
+              <span id="tempMax">--</span>
+              <small>Temp. Máx.</small>
+            </div>
+
+            <div class="clima-item">
+              <span id="tempMin">--</span>
+              <small>Temp. Mín.</small>
+            </div>
+
+            <div class="clima-item">
+              <span id="umidade">--</span>
+              <small>Umidade</small>
+            </div>
+
+            <div class="clima-item">
+              <span id="vento">--</span>
+              <small>Vento</small>
+            </div>
+
+            <div class="clima-item">
+              <span id="uv">--</span>
+              <small>Índice UV</small>
+            </div>
+
+            <div class="clima-item">
+              <span id="probChuva">--</span>
+              <small>Prob. Chuva</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- PREVISÃO 16 DIAS -->
+        <div class="previsao-container">
+          <h4>
+            <i class="fa-solid fa-calendar-days"></i>
+            Previsão para 16 Dias
+          </h4>
+
+          <div id="previsao16dias">
+            Clique em uma localidade para visualizar a previsão meteorológica.
+          </div>
+        </div>
+
+        <!-- STATUS -->
+        <h3>
+          <i class="fa-solid fa-chart-column"></i>
+          Status das Localidades
+        </h3>
+
+        <!-- CARDS -->
+        <div id="cards-container">Carregando dados...</div>
+      </aside>
+    </div>
+
+    <!-- LEAFLET -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- SCRIPT -->
+    <script src="script.js"></script>
+  </body>
+</html>

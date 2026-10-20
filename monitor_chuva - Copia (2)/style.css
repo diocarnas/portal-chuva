@@ -1,0 +1,419 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background: #f1f5f9;
+    color: #334155;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* HEADER */
+
+header {
+    height: 60px;
+    background: linear-gradient(135deg, #0f3d66, #1e88e5);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, .15);
+}
+
+header h1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 24px;
+    font-weight: 600;
+}
+
+/* FILTROS */
+
+.filtros {
+    height: 60px;
+    background: #fff;
+    padding: 10px 15px;
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.filtros select {
+    flex: 1;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 10px;
+    background: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.filtros select:focus {
+    outline: none;
+    border-color: #1e88e5;
+    box-shadow: 0 0 8px rgba(30, 136, 229, .25);
+}
+
+/* LAYOUT */
+
+.container {
+    display: flex;
+    height: calc(100vh - 120px);
+}
+
+/* MAPA */
+
+#map {
+    flex: 1;
+    height: 100%;
+}
+
+/* SIDEBAR */
+
+#sidebar {
+    width: 360px;
+    min-width: 360px;
+    background: #f8fafc;
+    border-left: 1px solid #e2e8f0;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* KPI */
+
+.kpis {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.kpi {
+    background: #fff;
+    border-radius: 12px;
+    text-align: center;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.kpi span {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    color: #1565c0;
+}
+
+.kpi small {
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* CONTADOR */
+
+.contador {
+    background: linear-gradient(135deg,
+            #1e88e5,
+            #1565c0);
+    color: white;
+    text-align: center;
+    padding: 14px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* LEGENDA */
+
+.legenda {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.legenda h4 {
+    color: #0f3d66;
+    margin-bottom: 10px;
+}
+
+.legenda div {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 6px 0;
+}
+
+.verde,
+.laranja,
+.vermelho {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+.verde {
+    background: #22c55e;
+}
+
+.laranja {
+    background: #f59e0b;
+}
+
+.vermelho {
+    background: #ef4444;
+}
+
+/* PREVISÃO */
+
+.previsao-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.previsao-container h4 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #0f3d66;
+    margin-bottom: 10px;
+}
+
+/* RESUMO DO CLIMA */
+
+.resumo-clima {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+}
+
+.clima-item {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    text-align: center;
+    padding: 10px;
+}
+
+.clima-item span {
+    display: block;
+    font-size: 18px;
+    font-weight: bold;
+    color: #1565c0;
+}
+
+.clima-item small {
+    color: #64748b;
+    font-size: 11px;
+}
+
+/* PREVISÃO 16 DIAS */
+
+#previsao16dias {
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.dia-previsao {
+    display: grid;
+    grid-template-columns: 100px 90px 1fr;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.dia-previsao:last-child {
+    border-bottom: none;
+}
+
+.dia-previsao strong {
+    color: #334155;
+    white-space: nowrap;
+}
+
+.dia-previsao .volume {
+    text-align: right;
+    color: #475569;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.chance-baixa,
+.chance-media,
+.chance-alta {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chance-baixa {
+    color: #22c55e;
+}
+
+.chance-media {
+    color: #f59e0b;
+}
+
+.chance-alta {
+    color: #ef4444;
+}
+
+/* STATUS */
+
+#sidebar h3 {
+    color: #0f3d66;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* CARDS */
+
+#cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.card {
+    background: white;
+    border-left: 4px solid #1e88e5;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+    transition: .2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+}
+
+.card h4 {
+    color: #0f3d66;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 16px;
+}
+
+.card p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+    color: #475569;
+    font-size: 13px;
+}
+
+/* BARRA DE CHUVA */
+
+.barra-chuva {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.barra-progresso {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+            #22c55e 0%,
+            #84cc16 30%,
+            #f59e0b 65%,
+            #ef4444 100%);
+    transition: width .5s ease;
+}
+
+/* STATUS CORES */
+
+.status-seco {
+    color: #22c55e;
+    font-weight: 600;
+}
+
+.status-atencao {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.status-critico {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* SCROLL */
+
+#sidebar::-webkit-scrollbar,
+#previsao16dias::-webkit-scrollbar {
+    width: 6px;
+}
+
+#sidebar::-webkit-scrollbar-thumb,
+#previsao16dias::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+/* LEAFLET */
+
+.leaflet-popup-content {
+    font-size: 13px;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 1000px) {
+
+    .container {
+        flex-direction: column;
+    }
+
+    #map {
+        height: 55vh;
+    }
+
+    #sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: 45vh;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .filtros {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .kpis {
+        grid-template-columns: 1fr;
+    }
+
+    .resumo-clima {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    .container {
+        height: calc(100vh - 180px);
+    }
+}
