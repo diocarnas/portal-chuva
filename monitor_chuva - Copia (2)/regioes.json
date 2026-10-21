@@ -7120,9 +7120,16 @@
     {
         "nom_Regional": "REGIONAL SAO PAULO INTERIOR",
         "nom_cluster": "OSASCO",
-        "nom_cidade": "EMBU DAS ARTES",
+        "nom_cidade": "MORUMBI",
         "Latitude": -23.626721,
         "Longitude": -46.700825
+    },
+    {
+        "nom_Regional": "REGIONAL SAO PAULO INTERIOR",
+        "nom_cluster": "OSASCO",
+        "nom_cidade": "EMBU DAS ARTES",
+        "Latitude": -23.6489,
+        "Longitude": -46.8525
     },
     {
         "nom_Regional": "REGIONAL SUL",
