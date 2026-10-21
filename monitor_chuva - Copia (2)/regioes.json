@@ -7531,10 +7531,17 @@
         "Longitude": -45.1968
     },
     {
-         "nom_Regional": "REGIONAL SAO PAULO CAPITAL",
+        "nom_Regional": "REGIONAL SAO PAULO CAPITAL",
         "nom_cluster": "SÃO PAULO",
         "nom_cidade": "Estadio Morumbis",
         "Latitude": -23.6001,
         "Longitude": -46.7201
+    },
+    {
+        "nom_Regional": "REGIONAL SAO PAULO CAPITAL",
+        "nom_cluster": "SÃO PAULO",
+        "nom_cidade": "Teatro Vivo",
+        "Latitude": -23.5766,
+        "Longitude": -46.6533
     }
 ]
