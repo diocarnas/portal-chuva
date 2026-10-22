@@ -249,23 +249,10 @@ header h1 {
     white-space: nowrap;
 }
 
-.chance-baixa,
-.chance-media,
-.chance-alta {
+.dia-previsao .chance {
     font-weight: 600;
     white-space: nowrap;
-}
-
-.chance-baixa {
-    color: #22c55e;
-}
-
-.chance-media {
-    color: #f59e0b;
-}
-
-.chance-alta {
-    color: #ef4444;
+    color: #475569;
 }
 
 /* STATUS */
@@ -415,5 +402,111 @@ header h1 {
 
     .container {
         height: calc(100vh - 180px);
+    }
+}
+
+/* DATA SELECIONADA */
+
+.data-selecionada {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+    background: #fff;
+    border-left: 4px solid #1e88e5;
+    border-radius: 12px;
+    padding: 10px 12px;
+    margin-bottom: 15px;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, .08);
+}
+
+.data-selecionada.outro-dia {
+    border-left-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.data-selecionada button {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #1565c0;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.data-selecionada button:hover {
+    background: #e3f2fd;
+}
+
+/* LINHAS CLICÁVEIS DA PREVISÃO */
+
+.dia-previsao {
+    cursor: pointer;
+    padding: 10px 8px;
+    border-radius: 8px;
+    transition: background .15s;
+}
+
+.dia-previsao:hover {
+    background: #f1f5f9;
+}
+
+.dia-previsao:focus-visible {
+    outline: 2px solid #1e88e5;
+}
+
+.dia-previsao.ativo {
+    background: #e3f2fd;
+    box-shadow: inset 3px 0 0 #1e88e5;
+}
+
+
+/* SELETOR FIXO DE DATA */
+
+#filtroData {
+    border-color: #1e88e5;
+}
+
+
+/* PADRONIZAÇÃO DOS SELETORES (habilitados e desabilitados iguais) */
+
+.filtros {
+    align-items: center;
+}
+
+.filtros select {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 40px;
+    min-width: 0;
+    padding: 0 38px 0 14px;
+    color: #0f172a;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 12px 8px;
+}
+
+.filtros select:disabled {
+    background-color: #f1f5f9;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%23cbd5e1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    color: #94a3b8;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .filtros select {
+        flex: none;
+        width: 100%;
     }
 }

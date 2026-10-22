@@ -42,6 +42,10 @@
       <select id="filtroCidade" disabled>
         <option value="">Todas as Cidades</option>
       </select>
+
+      <select id="filtroData" disabled title="Data exibida no mapa">
+        <option value="0">Carregando datas...</option>
+      </select>
     </div>
 
     <div class="container">
@@ -73,6 +77,9 @@
           <i class="fa-solid fa-map-location-dot"></i>
           Carregando...
         </div>
+
+        <!-- DATA EXIBIDA NO MAPA -->
+        <div class="data-selecionada" id="dataSelecionada"></div>
 
         <!-- LEGENDA -->
         <div class="legenda">
@@ -145,7 +152,7 @@
           </h4>
 
           <div id="previsao16dias">
-            Clique em uma localidade para visualizar a previsão meteorológica.
+            Clique em uma localidade para ver a previsão. Depois, clique em um dia para ver o mapa naquela data.
           </div>
         </div>
 

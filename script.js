@@ -3,6 +3,7 @@ const URL_INMET = "https://apiprevmet3.inmet.gov.br/avisos/ativos";
 const URL_METEO = "https://api.open-meteo.com/v1/forecast";
 const TAM_LOTE = 50;       // coordenadas por requisição ao Open-Meteo
 const CONCORRENCIA = 4;    // requisições simultâneas
+const DIAS_PREVISAO = 16;  // dias de previsão por coordenada
 
 /* ===================== Mapa ===================== */
 const map = L.map("map", { preferCanvas: true }).setView([-23.55, -46.63], 5);
@@ -18,14 +19,17 @@ const camadaMarcadores = L.layerGroup().addTo(map);
 let dados = [];
 let renderId = 0;                 // descarta renderizações antigas
 let alertasPromise = null;        // alertas INMET carregados uma única vez
-const cacheMeteo = new Map();     // chuva do dia por coordenada
+const cacheMeteo = new Map();     // chuva e chance dos 16 dias por coordenada
 const cachePrevisao = new Map();  // previsão de 16 dias por coordenada
 let abortPrevisao = null;
+let diaSelecionado = 0;          // índice do dia exibido no mapa (0 = hoje)
+let datasPrevisao = [];           // datas ISO (AAAA-MM-DD) dos 16 dias
 
 const $ = id => document.getElementById(id);
 const filtroRegional = $("filtroRegional");
 const filtroCluster = $("filtroCluster");
 const filtroCidade = $("filtroCidade");
+const filtroData = $("filtroData");
 
 /* ===================== Utilitários ===================== */
 const normalizar = s =>
@@ -35,6 +39,7 @@ const ESC = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ESC[c]);
 
 const chaveCoord = (lat, lon) => `${lat.toFixed(2)}_${lon.toFixed(2)}`;
+const fmtData = iso => iso.split("-").reverse().join("/");
 
 async function executarEmPool(tarefas, limite) {
     let i = 0;
@@ -96,7 +101,7 @@ async function obterMeteoLote(itens) {
                 const resp = await fetch(
                     `${URL_METEO}?latitude=${lats}&longitude=${lons}` +
                     `&daily=precipitation_sum,precipitation_probability_max` +
-                    `&forecast_days=1&timezone=America/Sao_Paulo`
+                    `&forecast_days=${DIAS_PREVISAO}&timezone=America/Sao_Paulo`
                 );
                 if (!resp.ok) throw new Error(`Open-Meteo ${resp.status}`);
 
@@ -105,9 +110,11 @@ async function obterMeteoLote(itens) {
 
                 lote.forEach((c, idx) => {
                     const daily = lista[idx]?.daily;
+                    if (!daily) return;   // sem dados: não grava, tenta de novo depois
+                    if (!datasPrevisao.length && Array.isArray(daily.time)) datasPrevisao = daily.time;
                     cacheMeteo.set(c.k, {
-                        chuva: Number(daily?.precipitation_sum?.[0] || 0),
-                        chance: Number(daily?.precipitation_probability_max?.[0] || 0)
+                        chuva: (daily.precipitation_sum ?? []).map(v => Number(v || 0)),
+                        chance: (daily.precipitation_probability_max ?? []).map(v => Number(v || 0))
                     });
                 });
             } catch (erro) {
@@ -120,7 +127,6 @@ async function obterMeteoLote(itens) {
     await executarEmPool(tarefas, CONCORRENCIA);
 }
 
-const SEM_DADOS = { chuva: 0, chance: 0 };
 
 /* ===================== Status ===================== */
 function obterStatus(chuva) {
@@ -225,7 +231,7 @@ function nomeExibido(local) {
     return local.nom_cidade;
 }
 
-async function atualizarTela(registros) {
+async function atualizarTela(registros, ajustarZoom = true) {
     const id = ++renderId;
 
     // Cada item já com coordenadas numéricas válidas.
@@ -246,6 +252,11 @@ async function atualizarTela(registros) {
     if (id !== renderId) return;
 
     camadaMarcadores.clearLayers();
+    atualizarBannerData();
+
+    const rotuloData = datasPrevisao[diaSelecionado]
+        ? fmtData(datasPrevisao[diaSelecionado])
+        : "hoje";
 
     let nivel = "Regionais";
     if (filtroRegional.value) nivel = "Clusters";
@@ -259,8 +270,11 @@ async function atualizarTela(registros) {
 
     for (const { local, lat, lon } of itens) {
         const nome = esc(nomeExibido(local));
-        const { chuva, chance } = cacheMeteo.get(chaveCoord(lat, lon)) ?? SEM_DADOS;
-        const alertaAtivo = alertas.has(normalizar(local.nom_cidade));
+        const meteo = cacheMeteo.get(chaveCoord(lat, lon));
+        const chuva = meteo?.chuva[diaSelecionado] ?? 0;
+        const chance = meteo?.chance[diaSelecionado] ?? 0;
+        // Os avisos do INMET são "ativos agora": só valem para o dia de hoje.
+        const alertaAtivo = diaSelecionado === 0 && alertas.has(normalizar(local.nom_cidade));
         const status = alertaAtivo ? STATUS_ALERTA : obterStatus(chuva);
 
         const marker = L.circleMarker([lat, lon], {
@@ -272,7 +286,7 @@ async function atualizarTela(registros) {
         });
 
         marker.bindPopup(`
-            <strong>${nome}</strong><br>
+            <strong>${nome}</strong> <small>(${rotuloData})</small><br>
             Volume Previsto: ${chuva} mm<br>
             Chance de Chuva: ${chance}%<br>
             Status: ${status.texto}<br>
@@ -300,7 +314,7 @@ async function atualizarTela(registros) {
     $("cards-container").innerHTML = cards.join("");
     marcadores.forEach(m => camadaMarcadores.addLayer(m));
 
-    if (marcadores.length > 0) {
+    if (ajustarZoom && marcadores.length > 0) {
         map.fitBounds(L.featureGroup(marcadores).getBounds(), {
             padding: [40, 40],
             maxZoom: 6
@@ -349,13 +363,12 @@ async function carregarPrevisao16Dias(lat, lon) {
         container.innerHTML = daily.time.map((dia, i) => {
             const [ano, mes, d] = dia.split("-");
             const chance = daily.precipitation_probability_max[i];
-            const classe = chance >= 70 ? "chance-alta" : chance >= 40 ? "chance-media" : "chance-baixa";
             const volume = Number(daily.precipitation_sum[i] ?? 0);
 
             return `
-<div class="dia-previsao">
+<div class="dia-previsao${i === diaSelecionado ? " ativo" : ""}" data-dia="${i}" tabindex="0" role="button" title="Ver o mapa neste dia">
     <div><strong>${d}/${mes}/${ano}</strong></div>
-    <div class="${classe}">${chance}%</div>
+    <div class="chance">${chance}%</div>
     <div class="volume">${volume.toFixed(1)} mm</div>
 </div>`;
         }).join("");
@@ -366,6 +379,84 @@ async function carregarPrevisao16Dias(lat, lon) {
         container.textContent = "Erro ao carregar previsão.";
     }
 }
+
+/* ===================== Seleção de data ===================== */
+// "seg." -> "Seg"
+function nomeSemana(iso) {
+    const s = new Date(`${iso}T12:00:00`)
+        .toLocaleDateString("pt-BR", { weekday: "short" })
+        .replace(".", "");
+    return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// Monta as 16 datas no seletor fixo (uma única vez, quando as datas chegam).
+function preencherDatas() {
+    if (filtroData.dataset.pronto || !datasPrevisao.length) return;
+
+    filtroData.innerHTML = datasPrevisao.map((iso, i) => {
+        const [, mes, dia] = iso.split("-");
+        const curto = `${dia}/${mes}`;
+        const rotulo = i === 0 ? `Hoje · ${curto}`
+            : i === 1 ? `Amanhã · ${curto}`
+            : `${nomeSemana(iso)} · ${curto}`;
+        return `<option value="${i}">${rotulo}</option>`;
+    }).join("");
+
+    filtroData.value = String(diaSelecionado);
+    filtroData.disabled = false;
+    filtroData.dataset.pronto = "1";
+}
+
+function atualizarBannerData() {
+    preencherDatas();
+
+    const el = $("dataSelecionada");
+    if (!el) return;
+
+    const iso = datasPrevisao[diaSelecionado];
+    const rotulo = iso ? fmtData(iso) : "";
+
+    el.classList.toggle("outro-dia", diaSelecionado !== 0);
+    el.innerHTML = diaSelecionado === 0
+        ? `<span><i class="fa-solid fa-calendar-day"></i> Mapa exibindo: <strong>Hoje</strong>${rotulo ? ` (${rotulo})` : ""}</span>`
+        : `<span><i class="fa-solid fa-calendar-day"></i> Mapa exibindo: <strong>${rotulo}</strong></span>
+           <button type="button" id="btnHoje">Voltar para hoje</button>`;
+}
+
+function marcarDiaAtivo() {
+    $("previsao16dias").querySelectorAll(".dia-previsao[data-dia]").forEach(el =>
+        el.classList.toggle("ativo", Number(el.dataset.dia) === diaSelecionado)
+    );
+}
+
+function selecionarDia(i) {
+    if (i === diaSelecionado) return;
+    diaSelecionado = i;
+    filtroData.value = String(i);
+    marcarDiaAtivo();
+    atualizarTela(obterRegistros(), false);   // false: mantém o zoom atual do mapa
+}
+
+const linhaDoEvento = e => e.target.closest(".dia-previsao[data-dia]");
+
+$("previsao16dias").addEventListener("click", e => {
+    const linha = linhaDoEvento(e);
+    if (linha) selecionarDia(Number(linha.dataset.dia));
+});
+
+$("previsao16dias").addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const linha = linhaDoEvento(e);
+    if (!linha) return;
+    e.preventDefault();
+    selecionarDia(Number(linha.dataset.dia));
+});
+
+filtroData.addEventListener("change", () => selecionarDia(Number(filtroData.value)));
+
+$("dataSelecionada").addEventListener("click", e => {
+    if (e.target.closest("#btnHoje")) selecionarDia(0);
+});
 
 /* ===================== Inicialização ===================== */
 // Já dispara os alertas em paralelo com o carregamento do JSON.
