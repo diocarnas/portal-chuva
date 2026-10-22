@@ -8,9 +8,11 @@ const DIAS_PREVISAO = 16;  // dias de previsão por coordenada
 /* ===================== Mapa ===================== */
 const map = L.map("map", { preferCanvas: true }).setView([-23.55, -46.63], 5);
 
-L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 18,
-    attribution: "&copy; OpenStreetMap"
+// Substituído o tileLayer do OSM pelo CartoDB Voyager
+L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+    maxZoom: 19,
+    subdomains: 'abcd',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
 }).addTo(map);
 
 const camadaMarcadores = L.layerGroup().addTo(map);
