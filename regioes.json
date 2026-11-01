@@ -7555,8 +7555,9 @@
         "nom_Regional":"REGIONAL SAO PAULO CAPITAL",
         "nom_cluster":"SÃO PAULO",
         "nom_cidade":"Morumbi Shopping",
-        "Longitude": -46.69867,
-        "Latitude": 23.62325
+        "Latitude": 23.62325,
+        "Longitude": -46.69867
+        
 
     }
 ]
