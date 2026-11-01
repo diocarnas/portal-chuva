@@ -124,11 +124,17 @@ function ufDoLocal(local) {
     return normalizar(local.UF ?? local.uf ?? local.nom_uf ?? local.Estado ?? local.estado ?? "");
 }
 
-function temAlerta(alertas, local) {
+function avisosDoLocal(alertas, local) {
     const lista = alertas.get(normalizar(local.municipio ?? local.nom_municipio ?? local.nom_cidade));
-    if (!lista) return false;
+    if (!lista) return [];
     const uf = ufDoLocal(local);
-    return lista.some(a => !uf || !a.uf || a.uf === uf);
+    return lista.filter(a => !uf || !a.uf || a.uf === uf).map(a => a.alerta);
+}
+
+// "2026-11-01 21:00" -> "01/11 21:00"
+function fmtFimAviso(s) {
+    const m = String(s ?? "").match(/^\d{4}-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/);
+    return m ? `${m[2]}/${m[1]} ${m[3]}` : "";
 }
 
 /* ===================== Open-Meteo (em lote) ===================== */
@@ -367,6 +373,7 @@ function resumirGrupo(grupo, alertas) {
     let chuva = null;
     let chance = null;
     let cidadesEmAlerta = 0;
+    const avisos = new Map();
 
     for (const { local, lat, lon } of pontos) {
         const meteo = cacheMeteo.get(chaveCoord(lat, lon));
@@ -374,7 +381,15 @@ function resumirGrupo(grupo, alertas) {
         const p = meteo?.chance[diaSelecionado];
         if (c != null) chuva = chuva == null ? c : Math.max(chuva, c);
         if (p != null) chance = chance == null ? p : Math.max(chance, p);
-        if (diaSelecionado === 0 && temAlerta(alertas, local)) cidadesEmAlerta++;
+        if (diaSelecionado === 0) {
+            const lista = avisosDoLocal(alertas, local);
+            if (lista.length) cidadesEmAlerta++;
+            for (const a of lista) {
+                const tipo = a.descricao ?? "Alerta";
+                const fim = String(a.fim ?? "");
+                if (!avisos.has(tipo) || fim > avisos.get(tipo)) avisos.set(tipo, fim);
+            }
+        }
     }
 
     return {
@@ -383,6 +398,10 @@ function resumirGrupo(grupo, alertas) {
         chuva,
         chance,
         cidadesEmAlerta,
+        avisos: [...avisos].map(([tipo, fim]) => {
+            const ate = fmtFimAviso(fim);
+            return ate ? `${esc(tipo)} (até ${ate})` : esc(tipo);
+        }),
         totalCidades: pontos.length
     };
 }
@@ -457,6 +476,7 @@ function desenhar(grupos, alertas, ajustarZoom) {
         const textoAlerta = agregado
             ? `ALERTA INMET ATIVO (${r.cidadesEmAlerta} de ${r.totalCidades} cidades)`
             : "ALERTA INMET ATIVO";
+        const detalheAlerta = r.avisos.join("<br>");
         const rotuloVolume = agregado ? "Maior volume previsto" : "Volume Previsto";
         const rotuloChance = agregado ? "Maior chance de chuva" : "Chance de Chuva";
 
@@ -473,7 +493,7 @@ function desenhar(grupos, alertas, ajustarZoom) {
             ${rotuloVolume}: ${fmtChuva(r.chuva)}<br>
             ${rotuloChance}: ${fmtChance(r.chance)}<br>
             Status: ${status.texto}<br>
-            ${alertaAtivo ? `<span style="color:#8B0000"><b>${textoAlerta}</b></span>` : ""}
+            ${alertaAtivo ? `<span style="color:#8B0000"><b>${textoAlerta}</b><br>${detalheAlerta}</span>` : ""}
         `);
         marker.on("click", () => carregarPrevisao16Dias(r.lat, r.lon));
 
@@ -483,7 +503,7 @@ function desenhar(grupos, alertas, ajustarZoom) {
 <div class="card">
     <h4><i class="fa-solid fa-location-dot"></i> ${nome}</h4>
     ${alertaAtivo
-        ? `<p style="background:#8B0000;color:white;padding:8px;border-radius:5px;font-weight:bold;">${textoAlerta}</p>`
+        ? `<p style="background:#8B0000;color:white;padding:8px;border-radius:5px;font-weight:bold;">${textoAlerta}<br><span style="font-weight:normal;">${detalheAlerta}</span></p>`
         : ""}
     <p><i class="fa-solid fa-building"></i> ${esc(rep.nom_Regional) || "-"}</p>
     ${agregado && !filtroCluster.value && filtroRegional.value
