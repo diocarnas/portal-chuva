@@ -8,6 +8,7 @@ const DIAS_PREVISAO = 16;  // dias de previsão por coordenada
 /* ===================== Mapa ===================== */
 const map = L.map("map", { preferCanvas: true }).setView([-23.55, -46.63], 5);
 
+// Substituído o tileLayer do OSM pelo CartoDB Voyager
 L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}", {
     maxZoom: 18,
     attribution: "Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012"
